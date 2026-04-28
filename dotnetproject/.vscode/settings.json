@@ -1,0 +1,4 @@
+{
+  "dotnet.defaultSolution": "BuyWise.slnx",
+  "typescript.tsdk": "frontend/buywise-client/node_modules/typescript/lib"
+}

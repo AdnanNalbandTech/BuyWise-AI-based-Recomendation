@@ -1,0 +1,24 @@
+cd "C:\Users\Dell\Documents\New project 2\dotnetproject"
+dotnet restore backend\BuyWise.Api\BuyWise.Api.csproj
+dotnet run --project backend\BuyWise.Api\BuyWise.Api.csproj
+
+
+
+
+check
+http://localhost:5148/api/health
+
+
+
+
+cd "C:\Users\Dell\Documents\New project 2\dotnetproject\frontend\buywise-client"
+npm.cmd install
+npm.cmd start
+
+Admin
+Email: admin@buywise.local
+Password: Admin@12345
+
+user1
+Adnan123@gmail.com
+adnan123

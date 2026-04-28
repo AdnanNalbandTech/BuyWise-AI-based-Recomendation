@@ -1,0 +1,86 @@
+<section class="page">
+  <div class="section-title">
+    <h1>Your Basket</h1>
+    <p>Review products, adjust quantities, and see AI suggestions that fit what you are buying.</p>
+  </div>
+
+  <p *ngIf="message" class="notice success">{{ message }}</p>
+  <p *ngIf="error" class="notice error">{{ error }}</p>
+
+  <ng-container *ngIf="items$ | async as items">
+    <div class="cart-layout" *ngIf="items.length; else emptyCart">
+      <div class="cart-items">
+        <article class="cart-row" *ngFor="let item of items">
+          <img [src]="item.imageUrl" [alt]="item.name">
+          <div class="cart-info">
+            <span>{{ item.categoryName }}</span>
+            <h2>{{ item.name }}</h2>
+            <strong>{{ item.price | currency:'USD' }}</strong>
+          </div>
+          <label class="quantity">
+            <span>Qty</span>
+            <input type="number" min="1" [value]="item.quantity" (change)="setQuantity(item, $event)">
+          </label>
+          <button class="button warn" type="button" (click)="remove(item.id)">Remove</button>
+        </article>
+      </div>
+
+      <aside class="checkout-panel">
+        <h2>Checkout</h2>
+        <div class="summary-line">
+          <span>Items</span>
+          <strong>{{ items.length }}</strong>
+        </div>
+        <div class="summary-line total">
+          <span>Total</span>
+          <strong>{{ total() | currency:'USD' }}</strong>
+        </div>
+
+        <form [formGroup]="checkoutForm" (ngSubmit)="placeOrder()">
+          <label class="field">
+            <span>Full name</span>
+            <input type="text" formControlName="fullName">
+          </label>
+
+          <label class="field">
+            <span>Email</span>
+            <input type="email" formControlName="email">
+          </label>
+
+          <label class="field">
+            <span>Shipping address</span>
+            <textarea formControlName="shippingAddress"></textarea>
+          </label>
+
+          <button class="button" type="submit" [disabled]="placingOrder">
+            {{ placingOrder ? 'Placing order...' : 'Place order' }}
+          </button>
+        </form>
+      </aside>
+    </div>
+  </ng-container>
+
+  <ng-template #emptyCart>
+    <div class="empty-state">
+      <p>Your basket is empty.</p>
+      <a class="button" routerLink="/shop">Browse products</a>
+    </div>
+  </ng-template>
+
+  <section class="cart-recs" *ngIf="recommendations.length">
+    <div class="section-title">
+      <h2>Recommended With Your Basket</h2>
+    </div>
+    <div class="rec-list">
+      <article *ngFor="let rec of recommendations">
+        <img [src]="rec.imageUrl" [alt]="rec.name">
+        <div>
+          <h3>{{ rec.name }}</h3>
+          <p>{{ rec.reason }}</p>
+          <strong>{{ rec.price | currency:'USD' }}</strong>
+        </div>
+        <button class="button secondary" type="button" (click)="addRecommendation(rec)">Add</button>
+      </article>
+    </div>
+  </section>
+</section>

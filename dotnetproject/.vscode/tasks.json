@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "BUYWISE API",
+      "type": "shell",
+      "command": "dotnet run --project backend/BuyWise.Api/BuyWise.Api.csproj",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "DOTNET_CLI_HOME": "${workspaceFolder}/.dotnet-home",
+          "DOTNET_CLI_TELEMETRY_OPTOUT": "1"
+        }
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "BUYWISE Angular",
+      "type": "shell",
+      "command": "npm.cmd start",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend/buywise-client"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

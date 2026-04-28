@@ -1,0 +1,39 @@
+<section class="auth-page register-page">
+  <form class="auth-card" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="section-title">
+      <h1>Create Account</h1>
+      <p>Your account unlocks the storefront, basket, checkout, and AI recommendations.</p>
+    </div>
+
+    <p *ngIf="error" class="notice error">{{ error }}</p>
+
+    <label class="field">
+      <span>Full name</span>
+      <input type="text" formControlName="fullName" autocomplete="name">
+    </label>
+
+    <label class="field">
+      <span>Email</span>
+      <input type="email" formControlName="email" autocomplete="email">
+    </label>
+
+    <label class="field">
+      <span>Password</span>
+      <input type="password" formControlName="password" autocomplete="new-password">
+    </label>
+
+    <button class="button" type="submit" [disabled]="loading">
+      {{ loading ? 'Creating...' : 'Register' }}
+    </button>
+
+    <p class="switch-link">
+      Already registered?
+      <a routerLink="/login">Sign in</a>
+    </p>
+  </form>
+
+  <div class="register-panel">
+    <h2>BUYWISE remembers what matters.</h2>
+    <p>Product pages send the current product and basket context to the API, then the AI scoring service ranks items by category, tags, brand, price fit, reviews, and basket intent.</p>
+  </div>
+</section>

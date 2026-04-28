@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/backend/">
+    <Project Path="backend/BuyWise.Api/BuyWise.Api.csproj" />
+  </Folder>
+</Solution>

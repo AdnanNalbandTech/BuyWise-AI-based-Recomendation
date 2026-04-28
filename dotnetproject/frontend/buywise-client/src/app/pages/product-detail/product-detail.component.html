@@ -1,0 +1,61 @@
+<section class="page">
+  <p *ngIf="loading" class="empty-state">Loading product...</p>
+  <p *ngIf="error" class="notice error">{{ error }}</p>
+
+  <ng-container *ngIf="product as item">
+    <article class="detail-layout">
+      <div class="image-panel">
+        <img [src]="item.imageUrl" [alt]="item.name">
+      </div>
+
+      <div class="detail-copy">
+        <span class="category">{{ item.categoryName }}</span>
+        <h1>{{ item.name }}</h1>
+        <p class="description">{{ item.description }}</p>
+
+        <div class="stat-row">
+          <span>{{ item.rating }} / 5 rating</span>
+          <span>{{ item.reviewCount }} reviews</span>
+          <span>{{ item.stock }} in stock</span>
+        </div>
+
+        <div class="tags">
+          <span *ngFor="let tag of tags(item)">{{ tag }}</span>
+        </div>
+
+        <div class="buy-panel">
+          <strong>{{ item.price | currency:'USD' }}</strong>
+          <button class="button" type="button" (click)="addToCart(item)">Add to basket</button>
+        </div>
+      </div>
+    </article>
+
+    <section class="recommendations">
+      <div class="section-title">
+        <h2>AI Recommendations</h2>
+        <p>Related products are ranked by category, tags, brand, price fit, product quality, and what is already in your basket.</p>
+      </div>
+
+      <div class="recommendation-grid" *ngIf="recommendations.length; else noRecommendations">
+        <article *ngFor="let rec of recommendations" class="recommendation-card">
+          <a [routerLink]="['/products', rec.id]">
+            <img [src]="rec.imageUrl" [alt]="rec.name">
+          </a>
+          <div>
+            <span>{{ rec.categoryName }}</span>
+            <h3>{{ rec.name }}</h3>
+            <p>{{ rec.reason }}</p>
+            <div class="rec-footer">
+              <strong>{{ rec.price | currency:'USD' }}</strong>
+              <button class="button secondary" type="button" (click)="addToCart(rec)">Add</button>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <ng-template #noRecommendations>
+        <p class="empty-state">No recommendations yet.</p>
+      </ng-template>
+    </section>
+  </ng-container>
+</section>

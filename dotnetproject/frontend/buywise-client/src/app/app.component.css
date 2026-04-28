@@ -1,0 +1,139 @@
+.topbar {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid rgba(23, 32, 42, 0.1);
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  left: 0;
+  min-height: 72px;
+  padding: 14px clamp(18px, 4vw, 48px);
+  position: sticky;
+  right: 0;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  align-items: center;
+  color: #17202a;
+  display: inline-flex;
+  font-size: 1.2rem;
+  font-weight: 900;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.brand-mark {
+  align-items: center;
+  background: #17202a;
+  border-radius: 8px;
+  color: #37c8ab;
+  display: inline-flex;
+  font-size: 0.8rem;
+  height: 38px;
+  justify-content: center;
+  width: 38px;
+}
+
+.nav {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.nav a,
+.text-button,
+.user-pill {
+  border-radius: 8px;
+  color: #374151;
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 12px;
+  text-decoration: none;
+}
+
+.nav a.active,
+.nav a:hover {
+  background: #e9fbf7;
+  color: #0f766e;
+}
+
+.text-button {
+  background: #17202a;
+  border: 0;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.user-pill {
+  background: #fff4d6;
+  color: #7c4a00;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  background: #ff775d;
+  border-radius: 999px;
+  color: #ffffff;
+  display: inline-flex;
+  font-size: 0.75rem;
+  justify-content: center;
+  margin-left: 4px;
+  min-width: 22px;
+  padding: 2px 6px;
+}
+
+.menu-button {
+  background: #ffffff;
+  border: 1px solid rgba(23, 32, 42, 0.16);
+  border-radius: 8px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  height: 40px;
+  justify-content: center;
+  padding: 0 10px;
+  width: 44px;
+}
+
+.menu-button span {
+  background: #17202a;
+  border-radius: 999px;
+  display: block;
+  height: 2px;
+}
+
+.app-shell {
+  min-height: calc(100vh - 72px);
+}
+
+@media (max-width: 780px) {
+  .topbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .menu-button {
+    display: flex;
+  }
+
+  .nav {
+    display: none;
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav.open,
+  .auth-topbar .nav {
+    display: flex;
+  }
+
+  .user-pill {
+    max-width: none;
+  }
+}

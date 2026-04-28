@@ -1,0 +1,42 @@
+<ng-container *ngIf="user$ | async as user; else authShell">
+  <header class="topbar">
+    <a class="brand" routerLink="/shop" aria-label="BUYWISE home">
+      <span class="brand-mark">BW</span>
+      <span>BUYWISE</span>
+    </a>
+
+    <button class="menu-button" type="button" (click)="menuOpen = !menuOpen" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="nav" [class.open]="menuOpen">
+      <a routerLink="/shop" routerLinkActive="active" (click)="menuOpen = false">Shop</a>
+      <a routerLink="/cart" routerLinkActive="active" (click)="menuOpen = false">
+        Cart
+        <span class="count" *ngIf="cartCount$ | async as count">{{ count }}</span>
+      </a>
+      <a *ngIf="isAdmin()" routerLink="/admin" routerLinkActive="active" (click)="menuOpen = false">Admin</a>
+      <span class="user-pill">{{ user.fullName }}</span>
+      <button type="button" class="text-button" (click)="logout()">Logout</button>
+    </nav>
+  </header>
+</ng-container>
+
+<ng-template #authShell>
+  <header class="topbar auth-topbar">
+    <a class="brand" routerLink="/login" aria-label="BUYWISE login">
+      <span class="brand-mark">BW</span>
+      <span>BUYWISE</span>
+    </a>
+    <nav class="nav open">
+      <a routerLink="/login" routerLinkActive="active">Login</a>
+      <a routerLink="/register" routerLinkActive="active">Register</a>
+    </nav>
+  </header>
+</ng-template>
+
+<main class="app-shell">
+  <router-outlet></router-outlet>
+</main>

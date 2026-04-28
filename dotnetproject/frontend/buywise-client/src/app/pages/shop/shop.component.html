@@ -1,0 +1,78 @@
+<section class="shop-hero">
+  <div class="hero-content">
+    <span class="eyebrow">BUYWISE AI commerce</span>
+    <h1>Find the right product faster.</h1>
+    <p>Explore seeded categories, open a product, and BUYWISE will recommend products related to what you are viewing and collecting in your basket.</p>
+    <div class="hero-actions">
+      <a class="button" href="#catalog">Browse catalog</a>
+      <a class="button secondary" routerLink="/cart">View basket</a>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="catalog">
+  <div class="section-title catalog-title">
+    <div>
+      <h2>Product Catalog</h2>
+      <p>Filter by category or search brand, tags, and product details.</p>
+    </div>
+    <form class="search-bar" (ngSubmit)="loadProducts()">
+      <input type="search" name="search" [(ngModel)]="search" placeholder="Search products">
+      <button class="button" type="submit">Search</button>
+    </form>
+  </div>
+
+  <div class="category-strip">
+    <button type="button" [class.active]="selectedCategoryId === 0" (click)="selectCategory(0)">All</button>
+    <button
+      type="button"
+      *ngFor="let category of categories"
+      [class.active]="selectedCategoryId === category.id"
+      (click)="selectCategory(category.id)">
+      {{ category.name }}
+    </button>
+  </div>
+
+  <p *ngIf="error" class="notice error">{{ error }}</p>
+  <p *ngIf="loading" class="empty-state">Loading products...</p>
+
+  <div class="featured-band" *ngIf="featured.length && !selectedCategoryId && !search">
+    <article *ngFor="let product of featured" class="featured-card">
+      <img [src]="product.imageUrl" [alt]="product.name">
+      <div>
+        <span>{{ product.categoryName }}</span>
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.price | currency:'USD' }}</p>
+      </div>
+    </article>
+  </div>
+
+  <div class="product-grid" *ngIf="!loading && products.length">
+    <article class="product-card" *ngFor="let product of products">
+      <a [routerLink]="['/products', product.id]" class="product-image">
+        <img [src]="product.imageUrl" [alt]="product.name">
+        <span *ngIf="product.featured">Featured</span>
+      </a>
+      <div class="product-body">
+        <div class="product-meta">
+          <span>{{ product.categoryName }}</span>
+          <strong>{{ product.rating }} / 5</strong>
+        </div>
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.description }}</p>
+        <div class="tags">
+          <span *ngFor="let tag of tags(product)">{{ tag }}</span>
+        </div>
+        <div class="product-footer">
+          <strong>{{ product.price | currency:'USD' }}</strong>
+          <div class="card-actions">
+            <a class="button secondary" [routerLink]="['/products', product.id]">Details</a>
+            <button class="button" type="button" (click)="addToCart(product)">Add</button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <p *ngIf="!loading && !products.length" class="empty-state">No products found.</p>
+</section>
