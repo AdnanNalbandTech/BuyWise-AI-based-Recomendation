@@ -29,6 +29,17 @@ public sealed record ProductUpsertRequest(
     string Tags,
     bool Featured);
 
+public sealed record ProductSearchRequest
+{
+    public string? Search { get; init; }
+    public int? CategoryId { get; init; }
+    public decimal? MinPrice { get; init; }
+    public decimal? MaxPrice { get; init; }
+    public string? Brand { get; init; }
+    public double? MinRating { get; init; }
+    public string? Tags { get; init; }
+}
+
 public sealed record RecommendationDto(
     int Id,
     string Name,

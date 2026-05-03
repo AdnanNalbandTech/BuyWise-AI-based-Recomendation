@@ -40,3 +40,5 @@
 <main class="app-shell">
   <router-outlet></router-outlet>
 </main>
+
+<app-chatbot *ngIf="user$ | async"></app-chatbot>

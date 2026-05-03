@@ -8,6 +8,18 @@ BUYWISE is a full-stack ecommerce starter built with:
 
 The application starts at login/register, then opens a responsive storefront with product categories, product details, cart, checkout, admin product management, and an AI-style recommendation endpoint.
 
+## AI Commerce Features
+
+The upgraded version includes:
+
+- Larger production-style catalog across electronics, mobiles, laptops, shoes, clothes, watches, home appliances, and accessories.
+- User activity tracking for product views, cart additions, wishlist-ready events, and purchases.
+- Personalized "Recommended For You" suggestions from views, cart items, and purchases.
+- Similar product recommendations using category, price range, rating, brand, and tags.
+- Frequently bought together recommendations using seeded purchase-pair data.
+- Floating Angular chatbot connected to the ASP.NET Core backend.
+- Chatbot support for product search, recommendations, cart totals, order status, order cancellation, and FAQs.
+
 ## Local Requirement Check
 
 Checked in this workspace:
@@ -58,10 +70,42 @@ Useful endpoints:
 - `POST /api/auth/login`
 - `POST /api/auth/register`
 - `GET /api/categories`
-- `GET /api/products`
+- `GET /api/products?search=laptop&maxPrice=50000&brand=Dell&minRating=4&tags=gaming`
+- `GET /api/products/search`
 - `GET /api/products/{id}`
 - `GET /api/recommendations/{productId}?cartIds=1,2,3`
+- `GET /api/recommendations/similar/{productId}`
+- `GET /api/recommendations/frequently-bought-together/{productId}`
+- `GET /api/recommendations/for-you/{userId}`
+- `POST /api/user-activities`
+- `GET /api/cart/{userId}`
+- `POST /api/cart`
 - `POST /api/orders`
+- `GET /api/orders/user/{userId}/latest`
+- `POST /api/orders/{orderId}/cancel`
+- `GET /api/faqs`
+- `POST /api/chatbot/query`
+
+## Database Upgrade Notes
+
+This project uses direct MySQL repositories with `MySqlConnector`, not Entity Framework Core. There are no EF migrations to run. The API startup initializer applies the schema idempotently when the backend runs.
+
+For an existing database, start the API once after updating the connection string. It will create these tables if missing:
+
+- `product_tags`
+- `user_activities`
+- `cart_items`
+- `frequently_bought_together`
+- `faqs`
+
+It also adds these columns to `orders` if missing:
+
+- `status`
+- `tracking_number`
+- `estimated_delivery`
+- `canceled_at`
+
+You can also review the full schema in `database/schema.sql`.
 
 ## Run the Frontend
 

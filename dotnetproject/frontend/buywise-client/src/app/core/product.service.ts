@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
-import { Category, Product, ProductUpsert, Recommendation } from './models';
+import { Category, Product, ProductFilters, ProductUpsert, Recommendation } from './models';
 
 const API_URL = 'http://localhost:5148/api';
 
@@ -15,13 +15,28 @@ export class ProductService {
     return this.http.get<Category[]>(`${API_URL}/categories`);
   }
 
-  getProducts(search = '', categoryId?: number): Observable<Product[]> {
+  getProducts(search = '', categoryId?: number, filters: ProductFilters = {}): Observable<Product[]> {
     let params = new HttpParams();
     if (search.trim()) {
       params = params.set('search', search.trim());
     }
     if (categoryId) {
       params = params.set('categoryId', categoryId);
+    }
+    if (filters.minPrice) {
+      params = params.set('minPrice', filters.minPrice);
+    }
+    if (filters.maxPrice) {
+      params = params.set('maxPrice', filters.maxPrice);
+    }
+    if (filters.brand?.trim()) {
+      params = params.set('brand', filters.brand.trim());
+    }
+    if (filters.minRating) {
+      params = params.set('minRating', filters.minRating);
+    }
+    if (filters.tags?.trim()) {
+      params = params.set('tags', filters.tags.trim());
     }
 
     return this.http.get<Product[]>(`${API_URL}/products`, { params });
@@ -50,6 +65,25 @@ export class ProductService {
     }
 
     return this.http.get<Recommendation[]>(`${API_URL}/recommendations/${productId}`, { params });
+  }
+
+  getSimilarProducts(productId: number, cartIds: number[] = [], take = 6): Observable<Recommendation[]> {
+    let params = new HttpParams().set('take', take);
+    if (cartIds.length > 0) {
+      params = params.set('cartIds', cartIds.join(','));
+    }
+
+    return this.http.get<Recommendation[]>(`${API_URL}/recommendations/similar/${productId}`, { params });
+  }
+
+  getFrequentlyBoughtTogether(productId: number, take = 4): Observable<Recommendation[]> {
+    const params = new HttpParams().set('take', take);
+    return this.http.get<Recommendation[]>(`${API_URL}/recommendations/frequently-bought-together/${productId}`, { params });
+  }
+
+  getRecommendedForUser(userId: number, take = 8): Observable<Recommendation[]> {
+    const params = new HttpParams().set('take', take);
+    return this.http.get<Recommendation[]>(`${API_URL}/recommendations/for-you/${userId}`, { params });
   }
 
   private authHeaders(): HttpHeaders {

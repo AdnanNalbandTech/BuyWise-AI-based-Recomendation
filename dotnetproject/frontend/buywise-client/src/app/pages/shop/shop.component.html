@@ -22,6 +22,30 @@
     </form>
   </div>
 
+  <form class="advanced-filters" (ngSubmit)="loadProducts()">
+    <label>
+      <span>Max price</span>
+      <input type="number" name="maxPrice" [(ngModel)]="maxPrice" placeholder="50000" min="0">
+    </label>
+    <label>
+      <span>Brand</span>
+      <input type="text" name="brand" [(ngModel)]="brand" placeholder="Samsung, Nike, Dell">
+    </label>
+    <label>
+      <span>Min rating</span>
+      <select name="minRating" [(ngModel)]="minRating">
+        <option [ngValue]="undefined">Any</option>
+        <option [ngValue]="4">4+</option>
+        <option [ngValue]="4.5">4.5+</option>
+      </select>
+    </label>
+    <label>
+      <span>Tag</span>
+      <input type="text" name="tagFilter" [(ngModel)]="tagFilter" placeholder="gaming, running, wireless">
+    </label>
+    <button class="button secondary" type="submit">Apply filters</button>
+  </form>
+
   <div class="category-strip">
     <button type="button" [class.active]="selectedCategoryId === 0" (click)="selectCategory(0)">All</button>
     <button
@@ -36,13 +60,34 @@
   <p *ngIf="error" class="notice error">{{ error }}</p>
   <p *ngIf="loading" class="empty-state">Loading products...</p>
 
+  <section class="recommendation-strip" *ngIf="recommendedForYou.length && !selectedCategoryId && !search">
+    <div class="section-title">
+      <h2>Recommended For You</h2>
+      <p>Personalized from your views, cart additions, and previous purchases.</p>
+    </div>
+    <div class="rec-scroll">
+      <article *ngFor="let rec of recommendedForYou" class="mini-rec">
+        <a [routerLink]="['/products', rec.id]">
+          <img [src]="rec.imageUrl" [alt]="rec.name">
+        </a>
+        <div>
+          <span>{{ rec.categoryName }}</span>
+          <h3>{{ rec.name }}</h3>
+          <p>{{ rec.reason }}</p>
+          <strong>{{ rec.price | currency:'INR':'symbol':'1.0-0' }}</strong>
+          <button class="button secondary" type="button" (click)="addRecommendationToCart(rec)">Add</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
   <div class="featured-band" *ngIf="featured.length && !selectedCategoryId && !search">
     <article *ngFor="let product of featured" class="featured-card">
       <img [src]="product.imageUrl" [alt]="product.name">
       <div>
         <span>{{ product.categoryName }}</span>
         <h3>{{ product.name }}</h3>
-        <p>{{ product.price | currency:'USD' }}</p>
+        <p>{{ product.price | currency:'INR':'symbol':'1.0-0' }}</p>
       </div>
     </article>
   </div>
@@ -64,7 +109,7 @@
           <span *ngFor="let tag of tags(product)">{{ tag }}</span>
         </div>
         <div class="product-footer">
-          <strong>{{ product.price | currency:'USD' }}</strong>
+          <strong>{{ product.price | currency:'INR':'symbol':'1.0-0' }}</strong>
           <div class="card-actions">
             <a class="button secondary" [routerLink]="['/products', product.id]">Details</a>
             <button class="button" type="button" (click)="addToCart(product)">Add</button>
