@@ -4,11 +4,12 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { map } from 'rxjs';
 import { AuthService } from './core/auth.service';
 import { CartService } from './core/cart.service';
+import { ChatbotComponent } from './shared/chatbot/chatbot.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, ChatbotComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

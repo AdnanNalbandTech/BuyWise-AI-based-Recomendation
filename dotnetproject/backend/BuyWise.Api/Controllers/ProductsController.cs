@@ -19,9 +19,32 @@ public sealed class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] string? search, [FromQuery] int? categoryId)
+    public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(
+        [FromQuery] string? search,
+        [FromQuery] int? categoryId,
+        [FromQuery] decimal? minPrice,
+        [FromQuery] decimal? maxPrice,
+        [FromQuery] string? brand,
+        [FromQuery] double? minRating,
+        [FromQuery] string? tags)
     {
-        var products = await _productRepository.GetProductsAsync(search, categoryId);
+        var products = await _productRepository.GetProductsAsync(new ProductSearchRequest
+        {
+            Search = search,
+            CategoryId = categoryId,
+            MinPrice = minPrice,
+            MaxPrice = maxPrice,
+            Brand = brand,
+            MinRating = minRating,
+            Tags = tags
+        });
+        return Ok(products);
+    }
+
+    [HttpGet("search")]
+    public async Task<ActionResult<IReadOnlyList<Product>>> SearchProducts([FromQuery] ProductSearchRequest request)
+    {
+        var products = await _productRepository.GetProductsAsync(request);
         return Ok(products);
     }
 

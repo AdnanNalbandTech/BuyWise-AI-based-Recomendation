@@ -26,6 +26,43 @@ public sealed class RecommendationsController : ControllerBase
         return Ok(recommendations);
     }
 
+    [HttpGet("similar/{productId:int}")]
+    public async Task<ActionResult<IReadOnlyList<RecommendationDto>>> GetSimilarProducts(
+        int productId,
+        [FromQuery] string? cartIds,
+        [FromQuery] int take = 6)
+    {
+        var recommendations = await _recommendationService.GetSimilarProductsAsync(productId, ParseIds(cartIds), take);
+        return Ok(recommendations);
+    }
+
+    [HttpGet("frequently-bought-together/{productId:int}")]
+    public async Task<ActionResult<IReadOnlyList<RecommendationDto>>> GetFrequentlyBoughtTogether(
+        int productId,
+        [FromQuery] int take = 4)
+    {
+        var recommendations = await _recommendationService.GetFrequentlyBoughtTogetherAsync(productId, take);
+        return Ok(recommendations);
+    }
+
+    [HttpGet("for-you/{userId:int}")]
+    public async Task<ActionResult<IReadOnlyList<RecommendationDto>>> GetRecommendedForYou(
+        int userId,
+        [FromQuery] int take = 8)
+    {
+        var recommendations = await _recommendationService.GetRecommendedForUserAsync(userId, take);
+        return Ok(recommendations);
+    }
+
+    [HttpGet("user/{userId:int}")]
+    public async Task<ActionResult<IReadOnlyList<RecommendationDto>>> GetUserBasedRecommendations(
+        int userId,
+        [FromQuery] int take = 8)
+    {
+        var recommendations = await _recommendationService.GetRecommendedForUserAsync(userId, take);
+        return Ok(recommendations);
+    }
+
     private static IReadOnlyList<int> ParseIds(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))

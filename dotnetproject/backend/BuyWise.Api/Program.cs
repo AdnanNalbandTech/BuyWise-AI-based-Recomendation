@@ -21,9 +21,13 @@ builder.Services.AddScoped<DatabaseInitializer>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IUserActivityRepository, UserActivityRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IFaqRepository, FaqRepository>();
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<RecommendationService>();
+builder.Services.AddScoped<ChatbotService>();
 
 var app = builder.Build();
 

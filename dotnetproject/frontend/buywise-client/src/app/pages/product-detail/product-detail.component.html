@@ -24,7 +24,7 @@
         </div>
 
         <div class="buy-panel">
-          <strong>{{ item.price | currency:'USD' }}</strong>
+          <strong>{{ item.price | currency:'INR':'symbol':'1.0-0' }}</strong>
           <button class="button" type="button" (click)="addToCart(item)">Add to basket</button>
         </div>
       </div>
@@ -46,7 +46,7 @@
             <h3>{{ rec.name }}</h3>
             <p>{{ rec.reason }}</p>
             <div class="rec-footer">
-              <strong>{{ rec.price | currency:'USD' }}</strong>
+              <strong>{{ rec.price | currency:'INR':'symbol':'1.0-0' }}</strong>
               <button class="button secondary" type="button" (click)="addToCart(rec)">Add</button>
             </div>
           </div>
@@ -56,6 +56,54 @@
       <ng-template #noRecommendations>
         <p class="empty-state">No recommendations yet.</p>
       </ng-template>
+    </section>
+
+    <section class="recommendations" *ngIf="similarProducts.length">
+      <div class="section-title">
+        <h2>Similar Products</h2>
+        <p>Compared by category, brand, price range, tags, reviews, and rating.</p>
+      </div>
+
+      <div class="recommendation-grid">
+        <article *ngFor="let rec of similarProducts" class="recommendation-card">
+          <a [routerLink]="['/products', rec.id]">
+            <img [src]="rec.imageUrl" [alt]="rec.name">
+          </a>
+          <div>
+            <span>{{ rec.categoryName }}</span>
+            <h3>{{ rec.name }}</h3>
+            <p>{{ rec.reason }}</p>
+            <div class="rec-footer">
+              <strong>{{ rec.price | currency:'INR':'symbol':'1.0-0' }}</strong>
+              <button class="button secondary" type="button" (click)="addToCart(rec)">Add</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="recommendations" *ngIf="frequentlyBoughtTogether.length">
+      <div class="section-title">
+        <h2>Frequently Bought Together</h2>
+        <p>Bundle-style suggestions based on seeded purchase patterns and fallback AI similarity.</p>
+      </div>
+
+      <div class="recommendation-grid">
+        <article *ngFor="let rec of frequentlyBoughtTogether" class="recommendation-card">
+          <a [routerLink]="['/products', rec.id]">
+            <img [src]="rec.imageUrl" [alt]="rec.name">
+          </a>
+          <div>
+            <span>{{ rec.categoryName }}</span>
+            <h3>{{ rec.name }}</h3>
+            <p>{{ rec.reason }}</p>
+            <div class="rec-footer">
+              <strong>{{ rec.price | currency:'INR':'symbol':'1.0-0' }}</strong>
+              <button class="button secondary" type="button" (click)="addToCart(rec)">Add</button>
+            </div>
+          </div>
+        </article>
+      </div>
     </section>
   </ng-container>
 </section>

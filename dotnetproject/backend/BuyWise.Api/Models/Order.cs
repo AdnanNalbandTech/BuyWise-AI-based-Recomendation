@@ -16,4 +16,16 @@ public sealed record OrderItemRequest(
 public sealed record OrderResponse(
     int Id,
     decimal Total,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    string Status = "Pending",
+    string? TrackingNumber = null,
+    DateTime? EstimatedDelivery = null);
+
+public sealed record OrderSummaryDto(
+    int Id,
+    decimal Total,
+    string Status,
+    string? TrackingNumber,
+    DateTime? EstimatedDelivery,
+    DateTime CreatedAt,
+    IReadOnlyList<OrderItemRequest> Items);

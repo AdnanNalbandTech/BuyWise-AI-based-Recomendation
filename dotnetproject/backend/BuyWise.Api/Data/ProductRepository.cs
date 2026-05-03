@@ -6,7 +6,7 @@ namespace BuyWise.Api.Data;
 public interface IProductRepository
 {
     Task<IReadOnlyList<Category>> GetCategoriesAsync();
-    Task<IReadOnlyList<Product>> GetProductsAsync(string? search = null, int? categoryId = null);
+    Task<IReadOnlyList<Product>> GetProductsAsync(ProductSearchRequest? filters = null);
     Task<Product?> GetProductAsync(int id);
     Task<Product> CreateProductAsync(ProductUpsertRequest request);
     Task<Product?> UpdateProductAsync(int id, ProductUpsertRequest request);
@@ -49,8 +49,9 @@ public sealed class ProductRepository : IProductRepository
         return categories;
     }
 
-    public async Task<IReadOnlyList<Product>> GetProductsAsync(string? search = null, int? categoryId = null)
+    public async Task<IReadOnlyList<Product>> GetProductsAsync(ProductSearchRequest? filters = null)
     {
+        filters ??= new ProductSearchRequest();
         await using var connection = _connectionFactory.CreateConnection();
         await connection.OpenAsync();
 
@@ -61,6 +62,11 @@ public sealed class ProductRepository : IProductRepository
             FROM products p
             INNER JOIN categories c ON c.id = p.category_id
             WHERE (@CategoryId IS NULL OR p.category_id = @CategoryId)
+              AND (@MinPrice IS NULL OR p.price >= @MinPrice)
+              AND (@MaxPrice IS NULL OR p.price <= @MaxPrice)
+              AND (@Brand IS NULL OR p.brand LIKE @Brand)
+              AND (@MinRating IS NULL OR p.rating >= @MinRating)
+              AND (@Tags IS NULL OR p.tags LIKE @Tags)
               AND (
                     @Search IS NULL
                     OR p.name LIKE @Search
@@ -71,8 +77,13 @@ public sealed class ProductRepository : IProductRepository
                   )
             ORDER BY p.featured DESC, p.rating DESC, p.created_at DESC;
             """;
-        command.Parameters.AddWithValue("@CategoryId", categoryId.HasValue ? categoryId.Value : DBNull.Value);
-        command.Parameters.AddWithValue("@Search", string.IsNullOrWhiteSpace(search) ? DBNull.Value : $"%{search.Trim()}%");
+        command.Parameters.AddWithValue("@CategoryId", filters.CategoryId.HasValue ? filters.CategoryId.Value : DBNull.Value);
+        command.Parameters.AddWithValue("@MinPrice", filters.MinPrice.HasValue ? filters.MinPrice.Value : DBNull.Value);
+        command.Parameters.AddWithValue("@MaxPrice", filters.MaxPrice.HasValue ? filters.MaxPrice.Value : DBNull.Value);
+        command.Parameters.AddWithValue("@Brand", string.IsNullOrWhiteSpace(filters.Brand) ? DBNull.Value : $"%{filters.Brand.Trim()}%");
+        command.Parameters.AddWithValue("@MinRating", filters.MinRating.HasValue ? filters.MinRating.Value : DBNull.Value);
+        command.Parameters.AddWithValue("@Tags", string.IsNullOrWhiteSpace(filters.Tags) ? DBNull.Value : $"%{filters.Tags.Trim()}%");
+        command.Parameters.AddWithValue("@Search", string.IsNullOrWhiteSpace(filters.Search) ? DBNull.Value : $"%{filters.Search.Trim()}%");
 
         var products = new List<Product>();
         await using var reader = await command.ExecuteReaderAsync();
@@ -119,6 +130,7 @@ public sealed class ProductRepository : IProductRepository
         BindProduct(command, request);
 
         var id = Convert.ToInt32(await command.ExecuteScalarAsync());
+        await RefreshProductTagsAsync(connection, id, request.Tags);
         return await GetProductAsync(id)
             ?? throw new InvalidOperationException("Product was created but could not be loaded.");
     }
@@ -148,6 +160,11 @@ public sealed class ProductRepository : IProductRepository
         BindProduct(command, request);
 
         var rows = await command.ExecuteNonQueryAsync();
+        if (rows > 0)
+        {
+            await RefreshProductTagsAsync(connection, id, request.Tags);
+        }
+
         return rows == 0 ? null : await GetProductAsync(id);
     }
 
@@ -155,12 +172,32 @@ public sealed class ProductRepository : IProductRepository
     {
         await using var connection = _connectionFactory.CreateConnection();
         await connection.OpenAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
+
+        foreach (var sql in new[]
+        {
+            "DELETE FROM product_tags WHERE product_id = @Id;",
+            "DELETE FROM frequently_bought_together WHERE primary_product_id = @Id OR related_product_id = @Id;",
+            "DELETE FROM cart_items WHERE product_id = @Id;",
+            "DELETE FROM user_activities WHERE product_id = @Id;"
+        })
+        {
+            await using var cleanupCommand = connection.CreateCommand();
+            cleanupCommand.Transaction = transaction;
+            cleanupCommand.CommandText = sql;
+            cleanupCommand.Parameters.AddWithValue("@Id", id);
+            await cleanupCommand.ExecuteNonQueryAsync();
+        }
 
         await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
         command.CommandText = "DELETE FROM products WHERE id = @Id;";
         command.Parameters.AddWithValue("@Id", id);
 
-        return await command.ExecuteNonQueryAsync() > 0;
+        var rows = await command.ExecuteNonQueryAsync();
+        await transaction.CommitAsync();
+
+        return rows > 0;
     }
 
     private static void BindProduct(MySqlCommand command, ProductUpsertRequest request)
@@ -176,6 +213,23 @@ public sealed class ProductRepository : IProductRepository
         command.Parameters.AddWithValue("@Brand", request.Brand.Trim());
         command.Parameters.AddWithValue("@Tags", request.Tags.Trim());
         command.Parameters.AddWithValue("@Featured", request.Featured);
+    }
+
+    private static async Task RefreshProductTagsAsync(MySqlConnection connection, int productId, string tags)
+    {
+        await using var deleteCommand = connection.CreateCommand();
+        deleteCommand.CommandText = "DELETE FROM product_tags WHERE product_id = @ProductId;";
+        deleteCommand.Parameters.AddWithValue("@ProductId", productId);
+        await deleteCommand.ExecuteNonQueryAsync();
+
+        foreach (var tag in tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(tag => tag.ToLowerInvariant()).Distinct())
+        {
+            await using var insertCommand = connection.CreateCommand();
+            insertCommand.CommandText = "INSERT INTO product_tags (product_id, tag) VALUES (@ProductId, @Tag);";
+            insertCommand.Parameters.AddWithValue("@ProductId", productId);
+            insertCommand.Parameters.AddWithValue("@Tag", tag);
+            await insertCommand.ExecuteNonQueryAsync();
+        }
     }
 
     private static Product MapProduct(MySqlDataReader reader) => new(

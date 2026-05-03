@@ -1,0 +1,58 @@
+<button class="chat-toggle" type="button" (click)="toggle()" aria-label="Open BuyWise assistant">
+  AI
+</button>
+
+<section class="chat-window" *ngIf="open" aria-label="BuyWise shopping assistant">
+  <header>
+    <div>
+      <strong>BuyWise Assistant</strong>
+      <span>AI shopping support</span>
+    </div>
+    <button type="button" (click)="toggle()" aria-label="Close assistant">x</button>
+  </header>
+
+  <div class="messages" #messageList>
+    <article *ngFor="let message of messages" [class.user]="message.role === 'user'" [class.bot]="message.role === 'bot'">
+      <p>{{ message.text }}</p>
+
+      <div class="chat-products" *ngIf="message.response?.products?.length">
+        <article *ngFor="let product of message.response?.products">
+          <a [routerLink]="['/products', product.id]">
+            <img [src]="product.imageUrl" [alt]="product.name">
+          </a>
+          <div>
+            <span>{{ product.categoryName }}</span>
+            <h3>{{ product.name }}</h3>
+            <strong>{{ product.price | currency:'INR':'symbol':'1.0-0' }}</strong>
+            <button type="button" (click)="addProduct(product)">Add</button>
+          </div>
+        </article>
+      </div>
+
+      <div class="cart-summary" *ngIf="message.response?.cart as cart">
+        <strong>Cart total: {{ cart.total | currency:'INR':'symbol':'1.0-0' }}</strong>
+        <span>{{ cart.items.length }} product line(s)</span>
+      </div>
+
+      <div class="cart-summary" *ngIf="message.response?.order as order">
+        <strong>Order #{{ order.id }}: {{ order.status }}</strong>
+        <span>Tracking: {{ order.trackingNumber || 'not assigned yet' }}</span>
+      </div>
+    </article>
+
+    <div class="typing" *ngIf="loading">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+
+  <div class="quick-replies">
+    <button type="button" *ngFor="let reply of quickReplies" (click)="send(reply)">{{ reply }}</button>
+  </div>
+
+  <form class="composer" (ngSubmit)="send()">
+    <input type="text" name="draft" [(ngModel)]="draft" placeholder="Ask about products, cart, orders, returns...">
+    <button type="submit" [disabled]="loading">Send</button>
+  </form>
+</section>

@@ -90,7 +90,7 @@
           {{ product.name }}
         </span>
         <span>{{ product.categoryName }}</span>
-        <span>{{ product.price | currency:'USD' }}</span>
+        <span>{{ product.price | currency:'INR':'symbol':'1.0-0' }}</span>
         <button class="button warn" type="button" (click)="deleteProduct(product)">Delete</button>
       </div>
     </div>
